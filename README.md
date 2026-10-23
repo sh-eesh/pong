@@ -15,4 +15,5 @@ The *right paddle* is controlled using `Up Arrow` key for upwards  and `Down Arr
 
 ## Screenshots
 ![](images/1.png)
+
 ![](images/2.png)
