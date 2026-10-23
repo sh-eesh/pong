@@ -15,10 +15,28 @@ clock = pg.time.Clock()
 running = True
 
 lPaddle = pg.Rect(15, (SCR_H / 2) - 50, 20, 100)
-lPaddleColor = (144,213,255)
+lPaddleColor = (144, 213, 255)
 
 rPaddle = pg.Rect(SCR_W - 35, (SCR_H / 2) - 50, 20, 100)
 rPaddleColor = (255, 71, 77)
+
+ballCenter = pg.math.Vector2(SCR_W / 2, SCR_H / 2)
+ballRadius = 15
+ballColor = (255, 255, 255)
+ballSpeedX = 5
+ballSpeedY = 5
+
+
+def check_circle_rect_collision(circle_center, circle_radius, rect):
+    cx, cy = circle_center
+    closest_x = max(rect.left, min(cx, rect.right))
+    closest_y = max(rect.top, min(cy, rect.bottom))
+    distance_x = cx - closest_x
+    distance_y = cy - closest_y
+    distance_squared = (distance_x * distance_x) + (distance_y * distance_y)
+
+    return distance_squared <= (circle_radius * circle_radius)
+
 
 # Game loop
 while running:
@@ -43,15 +61,30 @@ while running:
     if keys[pg.K_DOWN] and rPaddle.y + rPaddle.height < SCR_H:
         rPaddle.y += 5
 
+    ballCenter.x += ballSpeedX
+    ballCenter.y += ballSpeedY
+
+    if ballCenter.y - ballRadius <= 0 or ballCenter.y + ballRadius >= SCR_H:
+        ballSpeedY = -ballSpeedY
+
+    if check_circle_rect_collision(ballCenter, ballRadius, rPaddle):
+        ballSpeedX = -abs(ballSpeedX)
+        ballCenter.x = rPaddle.left - ballRadius
+
+    if check_circle_rect_collision(ballCenter, ballRadius, lPaddle):
+        ballSpeedX = abs(ballSpeedX)
+        ballCenter.x = lPaddle.right - ballRadius
+
     # Update the screen
     pg.display.flip()
 
     # Clean the background
     screen.fill("black")
 
-    # Draw both paddles
+    # Draw stuff on screen
     pg.draw.rect(screen, lPaddleColor, lPaddle)
     pg.draw.rect(screen, rPaddleColor, rPaddle)
+    pg.draw.circle(screen, ballColor, ballCenter, ballRadius)
 
     # Lock fps to 60
     clock.tick(60)
